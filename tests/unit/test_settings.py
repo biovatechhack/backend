@@ -33,10 +33,13 @@ def test_default_llm_provider_is_deepseek() -> None:
     assert s.LLM_PROVIDER == "deepseek"
 
 
-def test_optional_api_keys_default_to_none() -> None:
-    s = Settings()
-    assert s.GEMINI_API_KEY is None
-    assert s.DEEPSEEK_API_KEY is None
+def test_optional_api_keys_are_not_configured_by_default(monkeypatch) -> None:
+    # Clear both keys so the test is independent of the local .env file.
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    s = Settings(_env_file=None)  # type: ignore[call-arg]
+    assert not s.GEMINI_API_KEY
+    assert not s.DEEPSEEK_API_KEY
 
 
 def test_environment_override(monkeypatch) -> None:
