@@ -7,8 +7,8 @@ import joblib
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 
-from src.abstraction.ports.risk_port import RiskClassifierPort
-from src.domain.models.risk_models import RiskFeatures, RiskPrediction
+from abstraction.ports.risk_port import RiskClassifierPort
+from domain.models.risk_models import RiskFeatures, RiskPrediction
 
 logger = logging.getLogger(__name__)
 

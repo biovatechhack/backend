@@ -7,7 +7,7 @@ from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, Stri
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import relationship as sa_relationship
 
-from src.infrastructure.database.base import Base
+from infrastructure.database.base import Base
 
 
 def _utcnow() -> datetime:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from src.domain.models.llm_models import EntityExtractionResult
+from domain.models.llm_models import EntityExtractionResult
 
 
 class LlmPort(ABC):

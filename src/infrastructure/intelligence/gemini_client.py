@@ -6,10 +6,10 @@ import logging
 from google import genai
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
-from src.abstraction.ports.llm_port import LlmPort
-from src.domain.exceptions import GeminiParseError, GeminiUnavailableError
-from src.domain.models.llm_models import EntityExtractionResult
-from src.infrastructure.config.settings import settings
+from abstraction.ports.llm_port import LlmPort
+from domain.exceptions import GeminiParseError, GeminiUnavailableError
+from domain.models.llm_models import EntityExtractionResult
+from infrastructure.config.settings import settings
 
 logger = logging.getLogger(__name__)
 

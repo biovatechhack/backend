@@ -7,9 +7,9 @@ from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from src.infrastructure.config.settings import settings
-from src.infrastructure.database.base import Base
-from src.infrastructure.database import models  # noqa: F401
+from infrastructure.config.settings import settings
+from infrastructure.database.base import Base
+from infrastructure.database import models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.SQLITE_URL)
