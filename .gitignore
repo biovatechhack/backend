@@ -151,6 +151,12 @@ activemq-data/
 *-firebase-adminsdk-*.json
 firebase-credentials.json
 
+# Gmail OAuth2 / service-account credentials — never commit
+token.json
+gmail_credentials.json
+client_secrets.json
+client_secret_*.json
+
 # Environments
 .env
 .envrc
