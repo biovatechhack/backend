@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from src.domain.models.risk_models import RiskFeatures, RiskPrediction
+from domain.models.risk_models import RiskFeatures, RiskPrediction
 
 
 class RiskClassifierPort(ABC):

@@ -1,0 +1,10 @@
+{
+  "رأسي يدوخ": {"fr": "j'ai la tête qui tourne", "clinical": "dizziness"},
+  "عطشان بزاف": {"fr": "très soif", "clinical": "excessive_thirst"},
+  "ما كليتش": {"fr": "je n'ai pas mangé", "clinical": "missed_meal"},
+  "قلبي يضرب": {"fr": "mon cœur bat vite", "clinical": "palpitations"},
+  "حاسس بالدوار": {"fr": "je me sens faible", "clinical": "fatigue"},
+  "رجليا ترتعش": {"fr": "mes jambes tremblent", "clinical": "tremors"},
+  "كحح": {"fr": "je tousse", "clinical": "cough"},
+  "عيني ما تشوفش": {"fr": "je vois flou", "clinical": "blurred_vision"}
+}

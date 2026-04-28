@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from infrastructure.config.settings import settings
 from presentation.api.routers.health_route import health_router
 from infrastructure.middleware.pii import PiiMiddleware
-
+from presentation.api.routers.conversation_router import router as conversation_router
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
@@ -15,7 +15,8 @@ app.add_middleware(PiiMiddleware)
 
 # Production routers only
 app.include_router(health_router, prefix="/api/v1")
-
+# Add this line with the other routers
+app.include_router(conversation_router, prefix="/api/v1")
 # ====================== STARTUP ======================
 @app.on_event("startup")
 async def startup_event():

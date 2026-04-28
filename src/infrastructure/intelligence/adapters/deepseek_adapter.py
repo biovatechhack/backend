@@ -1,60 +1,59 @@
 from openai import AsyncOpenAI
-from abstraction.ports.llm_port import LLMProvider
-from infrastructure.config.settings import settings
 import json
-from typing import Dict, Any, List
+from typing import Dict, Any
 
-class DeepSeekAdapter(LLMProvider):
+from abstraction.ports.llm_port import LlmPort
+from domain.models.llm_models import EntityExtractionResult
+from infrastructure.config.settings import settings
+from infrastructure.intelligence.glossary import load_glossary
+
+
+class DeepSeekAdapter(LlmPort):
     def __init__(self):
         self.client = AsyncOpenAI(
             api_key=settings.DEEPSEEK_API_KEY,
             base_url=settings.DEEPSEEK_BASE_URL,
         )
-        self.model = "deepseek-chat"   # or "deepseek-reasoner" if you want
+        self.model = "deepseek-chat"
 
-    async def extract_clinical_entities(self, darija_text: str, glossary: dict) -> Dict[str, Any]:
-        system_prompt = f"""You are a clinical NLP engine specialized in Algerian Darija.
-You ONLY extract symptoms and context. Return VALID JSON only. No explanation.
+    async def extract_entities(self, conversation_text: str) -> EntityExtractionResult:
+        """LLM Call 1: Strict symptom extraction"""
+        glossary = load_glossary()
 
-Use this glossary to map colloquial Darija → clinical terms:
-{json.dumps(glossary, ensure_ascii=False, indent=2)}
+        system_prompt = f"""You are a clinical NLP engine for Algerian Darija.
+Return ONLY valid JSON. Never add explanation.
 
-Rules:
-- Never diagnose.
-- Never suggest medication changes.
-- Return exactly this schema."""
+Use this glossary:
+{json.dumps(glossary, ensure_ascii=False)}
+
+Extract from patient message and return exactly:
+{{"symptoms": ["list", "of", "symptoms"],
+  "severity_hints": ["list", "of", "hints"],
+  "missing_fields": ["list", "of", "missing", "info"],
+  "darija_confidence": 0.0 to 1.0}}"""
 
         response = await self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Patient said: {darija_text}"}
+                {"role": "user", "content": f"Patient: {conversation_text}"}
             ],
-            temperature=0.1,
+            temperature=0.0,
             response_format={"type": "json_object"}
         )
 
-        return json.loads(response.choices[0].message.content)
+        data = json.loads(response.choices[0].message.content)
+        return EntityExtractionResult(**data)
 
-    async def generate_response(self, risk_level: str, symptoms: List[str], patient_context: dict) -> str:
-        system_prompt = f"""
-        You are Nour, a warm, trusted Algerian digital nurse speaking natural Darija.
-        Tone: like a caring family member who is medically knowledgeable. Never alarming.
-
-        Risk level: {risk_level}
-        Extracted symptoms: {symptoms}
-
-        Respond in natural Darija. Keep under 70 words.
-        If MODERATE risk, ALWAYS end with: "راسلو طبيبك قبل ما تبدل أي دواء أو جرعة.
-        """
-
+    async def generate_response(self, system_prompt: str, user_message: str) -> str:
+        """LLM Call 2: Natural Darija response or follow-up question"""
         response = await self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": "Generate the response to the patient now."}
+                {"role": "user", "content": user_message}
             ],
             temperature=0.7,
-            max_tokens=150
+            max_tokens=180
         )
         return response.choices[0].message.content.strip()
