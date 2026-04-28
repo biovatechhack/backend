@@ -7,6 +7,8 @@ requires-python = ">=3.11"
 dependencies = [
     "aiosqlite>=0.21.0,<0.22",
     "alembic>=1.16.0,<2.0",
+    "google-genai>=1.0.0",
+    "supabase>=2.10.0,<3.0",
     "pydantic-settings>=2.10.0,<3.0",
     "sqlalchemy>=2.0.41,<3.0",
 ]
@@ -41,3 +43,21 @@ select = ["E", "F", "I", "UP", "B"]
 python_version = "3.11"
 strict = true
 packages = ["src"]
+
+[[tool.mypy.overrides]]
+# supabase-py ships no py.typed marker.
+module = [
+    "supabase",
+    "supabase.*",
+    "postgrest",
+    "postgrest.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# google-genai ships no py.typed marker.
+module = [
+    "google.genai",
+    "google.genai.*",
+]
+ignore_missing_imports = true

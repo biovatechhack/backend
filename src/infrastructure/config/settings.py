@@ -21,9 +21,15 @@ class Settings(BaseSettings):
     DEEPSEEK_BASE_URL: str = "https://api.deepseek.com/v1"
 
     GEMINI_API_KEY: str | None = None
+    GEMINI_MODEL: str = "gemini-1.5-flash"
 
     SQLITE_URL: str = "sqlite+aiosqlite:///./chroniccare.db"
     REDIS_URL: str = "redis://localhost:6379/0"
+
+    # ==================== Supabase ====================
+    SUPABASE_URL: str | None = None
+    SUPABASE_KEY: str | None = None  # anon / public key (Flutter client)
+    SUPABASE_SERVICE_ROLE_KEY: str | None = None  # service-role key (backend, bypasses RLS)
 
 
 settings = Settings()
