@@ -8,40 +8,40 @@ from src.domain.models.risk_models import RiskFeatures, RiskPrediction
 # ── RiskFeatures ──────────────────────────────────────────────────────────────
 
 def test_risk_features_required_fields() -> None:
-    f = RiskFeatures(age=55, bmi=28.0, hba1c_last=7.5, baseline_glucose=8.0)
+    f = RiskFeatures(age=55, hba1c=7.5, glucose=130.0, hr=75, spo2=97, steps=5000, sleep_hours=7.0)
     assert f.age == 55
-    assert f.bmi == 28.0
+    assert f.hba1c == 7.5
+    assert f.glucose == 130.0
 
 
-def test_risk_features_optional_defaults() -> None:
-    f = RiskFeatures(age=55, bmi=28.0, hba1c_last=7.5, baseline_glucose=8.0)
-    assert f.current_glucose is None
-    assert f.symptom_count == 0
-    assert f.has_hypertension is False
-    assert f.has_heart_disease is False
-    assert f.medication_count == 0
+def test_risk_features_optional_symptom_defaults() -> None:
+    f = RiskFeatures(age=55, hba1c=7.5, glucose=130.0, hr=75, spo2=97, steps=5000, sleep_hours=7.0)
+    assert f.confusion is False
+    assert f.tremors is False
+    assert f.thirst is False
 
 
-def test_risk_features_with_all_fields() -> None:
+def test_risk_features_with_symptom_flags() -> None:
     f = RiskFeatures(
         age=70,
-        bmi=35.5,
-        hba1c_last=10.2,
-        baseline_glucose=12.0,
-        current_glucose=14.0,
-        symptom_count=4,
-        has_hypertension=True,
-        has_heart_disease=True,
-        medication_count=3,
+        hba1c=10.2,
+        glucose=380.0,
+        hr=105,
+        spo2=92,
+        steps=800,
+        sleep_hours=5.0,
+        confusion=True,
+        thirst=True,
     )
-    assert f.current_glucose == 14.0
-    assert f.has_hypertension is True
+    assert f.confusion is True
+    assert f.thirst is True
+    assert f.tremors is False
 
 
 # ── RiskPrediction ────────────────────────────────────────────────────────────
 
 def test_risk_prediction_valid_levels() -> None:
-    for level in ("low", "medium", "high"):
+    for level in ("low", "moderate", "high"):
         p = RiskPrediction(risk_level=level, confidence=0.85)
         assert p.risk_level == level
 
@@ -60,10 +60,23 @@ def test_risk_prediction_top_features_default_empty() -> None:
     assert p.top_features == []
 
 
-def test_risk_prediction_top_features_populated() -> None:
+def test_risk_prediction_class_probabilities_default_empty() -> None:
+    p = RiskPrediction(risk_level="low", confidence=0.9)
+    assert p.class_probabilities == {}
+
+
+def test_risk_prediction_feature_contributions_default_empty() -> None:
+    p = RiskPrediction(risk_level="low", confidence=0.9)
+    assert p.feature_contributions == {}
+
+
+def test_risk_prediction_full() -> None:
     p = RiskPrediction(
         risk_level="high",
         confidence=0.92,
-        top_features=["hba1c_last", "current_glucose", "bmi"],
+        top_features=["glucose", "hr", "confusion"],
+        class_probabilities={"low": 0.05, "moderate": 0.03, "high": 0.92},
+        feature_contributions={"glucose": 1.8, "hr": 0.6, "confusion": 0.9},
     )
-    assert "hba1c_last" in p.top_features
+    assert "glucose" in p.top_features
+    assert abs(sum(p.class_probabilities.values()) - 1.0) < 1e-6
