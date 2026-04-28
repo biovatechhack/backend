@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from src.domain.entities.conversation_log import ConversationLog
-from src.domain.entities.family_member import FamilyMember
-from src.domain.entities.medication_log import MedicationLog
-from src.domain.entities.risk_event import RiskEvent
+from domain.entities.conversation_log import ConversationLog
+from domain.entities.family_member import FamilyMember
+from domain.entities.medication_log import MedicationLog
+from domain.entities.risk_event import RiskEvent
 
 
 @dataclass(slots=True)
