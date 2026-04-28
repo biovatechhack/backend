@@ -5,7 +5,7 @@ from typing import Any, cast
 
 from supabase import AsyncClient, acreate_client
 
-from src.infrastructure.config.settings import settings
+from infrastructure.config.settings import settings
 
 logger = logging.getLogger(__name__)
 

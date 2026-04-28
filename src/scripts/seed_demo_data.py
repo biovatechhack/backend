@@ -5,8 +5,8 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 
-from src.infrastructure.database import Base, SessionFactory, engine
-from src.infrastructure.database.models import (
+from infrastructure.database import Base, SessionFactory, engine
+from infrastructure.database.models import (
     ConversationLogModel,
     ConversationTurnModel,
     FamilyMemberModel,
