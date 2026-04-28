@@ -12,7 +12,7 @@ from domain.models.risk_models import RiskFeatures, RiskPrediction
 
 logger = logging.getLogger(__name__)
 
-_MODEL_PATH = Path(__file__).resolve().parents[4] / "models" / "risk_ebm.pkl"
+_MODEL_PATH = Path(__file__).resolve().parents[3] / "models" / "risk_ebm.pkl"
 
 # Order must match the training script's FEATURE_NAMES exactly
 FEATURE_NAMES = [
