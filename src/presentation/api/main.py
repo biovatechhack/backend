@@ -3,20 +3,24 @@ from infrastructure.config.settings import settings
 from presentation.api.routers.health_route import health_router
 from infrastructure.middleware.pii import PiiMiddleware
 from presentation.api.routers.conversation_router import router as conversation_router
+from presentation.api.routers.patient_router import router as patient_router
+from presentation.api.routers.doctor_router import router as doctor_router
+
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     docs_url="/docs",
     redoc_url="/redoc"
-)   
+)
 
 # Production middleware
 app.add_middleware(PiiMiddleware)
 
-# Production routers only
+# Production routers
 app.include_router(health_router, prefix="/api/v1")
-# Add this line with the other routers
 app.include_router(conversation_router, prefix="/api/v1")
+app.include_router(patient_router, prefix="/api/v1")
+app.include_router(doctor_router, prefix="/api/v1")
 # ====================== STARTUP ======================
 @app.on_event("startup")
 async def startup_event():

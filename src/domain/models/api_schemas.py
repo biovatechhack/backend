@@ -20,7 +20,8 @@ class ConversationResponse(BaseModel):
     session_id: str
     nurse_message_darija: str
     risk_level: str = "PENDING"               # stays PENDING during questioning
-    interview_complete: bool = False          # ← NEW: this tells you when interrogation ends
+    interview_complete: bool = False          # True once all 7 questions are asked
     requires_biometric: bool = False
     conversation_log_id: Optional[str] = None
+    question_count: int = 0                   # how many nurse questions asked so far (0-7)
     extracted: Optional[ClinicalExtraction] = None

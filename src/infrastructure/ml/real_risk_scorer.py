@@ -6,7 +6,8 @@ from interpret.glassbox import ExplainableBoostingClassifier
 
 class RealRiskScorer(RiskScorer):
     _model: ExplainableBoostingClassifier | None = None
-    MODEL_PATH = Path("../models/risk_ebm.pkl")
+    # Fix: Use path relative to this file to find the models directory in the project root
+    MODEL_PATH = Path(__file__).parent.parent.parent.parent / "models" / "risk_ebm.pkl"
 
     @classmethod
     def _load_model(cls):
