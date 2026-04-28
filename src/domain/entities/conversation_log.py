@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from src.domain.entities.conversation_turn import ConversationTurn
-from src.domain.entities.risk_event import RiskEvent
+from domain.entities.conversation_turn import ConversationTurn
+from domain.entities.risk_event import RiskEvent
 
 
 @dataclass(slots=True)
