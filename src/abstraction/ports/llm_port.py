@@ -1,24 +1,15 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List
 
-class LLMProvider(ABC):
-    """Port for any LLM (DeepSeek or Gemini)"""
+from domain.models.llm_models import EntityExtractionResult
+
+
+class LlmPort(ABC):
+    @abstractmethod
+    async def extract_entities(self, conversation_text: str) -> EntityExtractionResult:
+        """Extract medical entities from a conversation turn."""
 
     @abstractmethod
-    async def extract_clinical_entities(
-        self, 
-        darija_text: str, 
-        glossary: dict
-    ) -> Dict[str, Any]:
-        """Call 1: Clinical entity extraction (structured JSON)"""
-        pass
-
-    @abstractmethod
-    async def generate_response(
-        self,
-        risk_level: str,
-        symptoms: List[str],
-        patient_context: dict
-    ) -> str:
-        """Call 2: Culturally-appropriate Darija response"""
-        pass
+    async def generate_response(self, system_prompt: str, user_message: str) -> str:
+        """Generate a clinically-aware response."""
