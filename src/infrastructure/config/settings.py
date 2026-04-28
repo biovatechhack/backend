@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     DEEPSEEK_BASE_URL: str = "https://api.deepseek.com/v1"
 
     GEMINI_API_KEY: str | None = None
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-2.5-flash"
 
     SQLITE_URL: str = "sqlite+aiosqlite:///./chroniccare.db"
     REDIS_URL: str = "redis://localhost:6379/0"
