@@ -7,6 +7,7 @@ from domain.entities.conversation_log import ConversationLog
 from domain.entities.family_member import FamilyMember
 from domain.entities.medication_log import MedicationLog
 from domain.entities.risk_event import RiskEvent
+from domain.entities.sensor_reading import SensorReading
 
 
 @dataclass(slots=True)
@@ -14,6 +15,7 @@ class Patient:
     id: str
     display_name: str
     age: int
+    gender: str  # "M" | "F"
     bmi: float
     hba1c_last: float
     baseline_glucose: float
@@ -25,3 +27,4 @@ class Patient:
     medication_logs: list[MedicationLog] = field(default_factory=list)
     conversation_logs: list[ConversationLog] = field(default_factory=list)
     risk_events: list[RiskEvent] = field(default_factory=list)
+    sensor_readings: list[SensorReading] = field(default_factory=list)
