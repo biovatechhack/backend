@@ -24,12 +24,15 @@ Session state schema (stored in Redis):
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from abstraction.ports.llm_port import LlmPort
 from abstraction.ports.ml_port import RiskScorer
+from abstraction.ports.notification_port import NotificationPort
+from abstraction.repositories.patient_repository_port import PatientRepositoryPort
 from application.services.feature_mapper import FeatureMapper
 from application.services.risk_router import RiskRouter
 from domain.models.api_schemas import (
@@ -39,9 +42,12 @@ from domain.models.api_schemas import (
     RiskScore,
 )
 from domain.models.llm_models import EntityExtractionResult
+from domain.models.risk_models import RiskPrediction
 from infrastructure.cache.redis_session import RedisSessionCache
 from infrastructure.intelligence.patient_profile_loader import PatientProfileLoader
 from infrastructure.sensors.bracelet_simulator import BraceletSimulator
+
+logger = logging.getLogger(__name__)
 
 
 # ── Clinical dimensions the interviewer must cover, in priority order ─────────
@@ -81,9 +87,17 @@ class ConversationUseCase:
 
     MAX_QUESTIONS = 7  # hard cap on nurse questions
 
-    def __init__(self, llm: LlmPort, risk_scorer: RiskScorer) -> None:
+    def __init__(
+        self,
+        llm: LlmPort,
+        risk_scorer: RiskScorer,
+        notifications: list[NotificationPort] | None = None,
+        patient_repo: PatientRepositoryPort | None = None,
+    ) -> None:
         self.llm = llm
         self.risk_scorer = risk_scorer
+        self._notifications: list[NotificationPort] = notifications or []
+        self._patient_repo = patient_repo
 
     # ── Public entry point ───────────────────────────────────────────────────
 
@@ -202,7 +216,35 @@ class ConversationUseCase:
         log_id = str(uuid.uuid4())
         decision = RiskRouter.decide(risk_score_dict, patient_id, log_id)
 
-        # 5e. Generate warm, safe closing recommendation (NOT a diagnosis)
+        # 5e. Fire alert notifications for HIGH risk
+        if risk_score.risk == "HIGH" and self._notifications and self._patient_repo:
+            patient_entity = await self._patient_repo.get_by_id(patient_id)
+            if patient_entity:
+                prediction = RiskPrediction(
+                    risk_level=risk_score.risk.lower(),
+                    confidence=risk_score.confidence,
+                    top_features=risk_score.top_features,
+                )
+                for adapter in self._notifications:
+                    try:
+                        sent = await adapter.send(patient=patient_entity, prediction=prediction)
+                        if sent:
+                            logger.info(
+                                "notification sent channel=%s patient=%s",
+                                adapter.channel_name, patient_id,
+                            )
+                        else:
+                            logger.warning(
+                                "notification skipped channel=%s patient=%s",
+                                adapter.channel_name, patient_id,
+                            )
+                    except Exception as exc:
+                        logger.error(
+                            "notification error channel=%s patient=%s: %s",
+                            adapter.channel_name, patient_id, exc,
+                        )
+
+        # 5g. Generate warm, safe closing recommendation (NOT a diagnosis)
         final_message = await self._generate_final_recommendation(
             session=session,
             history_text=history_text,

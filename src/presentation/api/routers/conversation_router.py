@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, Header
 from typing import Optional
-from domain.models.api_schemas import ConversationRequest, ConversationResponse
+
+from fastapi import APIRouter, Depends, Header
+
 from application.use_cases.conversation_usecase import ConversationUseCase
-from presentation.api.dependencies import get_llm, get_risk_scorer
+from domain.models.api_schemas import ConversationRequest, ConversationResponse
+from presentation.api.dependencies import get_conversation_use_case
 
 router = APIRouter(prefix="/conversation", tags=["conversation"])
 
@@ -10,13 +12,8 @@ router = APIRouter(prefix="/conversation", tags=["conversation"])
 @router.post("/", response_model=ConversationResponse)
 async def conversation_endpoint(
     request: ConversationRequest,
-    x_session_id: Optional[str] = Header(None, alias="X-Session-ID"),   # ← session_id from header
-    use_case: ConversationUseCase = Depends(
-        lambda: ConversationUseCase(
-            llm=get_llm(),
-            risk_scorer=get_risk_scorer()
-        )
-    ),
+    x_session_id: Optional[str] = Header(None, alias="X-Session-ID"),
+    use_case: ConversationUseCase = Depends(get_conversation_use_case),
 ):
-    """Patient sends message. session_id is passed in header X-Session-ID"""
+    """Patient sends a Darija message. Pass X-Session-ID header to continue an existing session."""
     return await use_case.execute(request, session_id=x_session_id)
