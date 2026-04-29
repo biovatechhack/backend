@@ -8,8 +8,10 @@ from infrastructure.scheduler import reload_from_db, scheduler
 from infrastructure.supabase.medication_schedule_repository import (
     SupabaseMedicationScheduleRepository,
 )
+from presentation.api.routers.adherence import adherence_router
 from presentation.api.routers.health_route import health_router
 from presentation.api.routers.reminders import reminders_router
+from presentation.api.routers.report import report_router
 
 
 @asynccontextmanager
@@ -54,3 +56,5 @@ app.add_middleware(PiiMiddleware)
 # Production routers only
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(reminders_router, prefix="/api/v1")
+app.include_router(report_router, prefix="/api/v1")
+app.include_router(adherence_router, prefix="/api/v1")
