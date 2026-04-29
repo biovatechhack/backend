@@ -25,6 +25,20 @@ def _row_to_reading(row: dict[str, Any]) -> SensorReading:
 
 
 class SupabaseSensorReadingRepository(SensorReadingRepositoryPort):
+    async def save(self, reading: SensorReading) -> None:
+        client = await get_supabase_client()
+        row = {
+            "patient_id": reading.patient_id,
+            "recorded_at": reading.recorded_at.isoformat(),
+            "glucose_mg_dl": reading.glucose_mg_dl,
+            "heart_rate_bpm": reading.heart_rate_bpm,
+            "spo2_pct": reading.spo2_pct,
+            "steps_today": reading.steps_today,
+            "sleep_hours": reading.sleep_hours,
+        }
+        await client.table("sensor_readings").insert(row).execute()
+        logger.info("sensor_reading saved patient=%s", reading.patient_id)
+
     async def get_by_patient_since(
         self, patient_id: str, since: datetime
     ) -> list[SensorReading]:

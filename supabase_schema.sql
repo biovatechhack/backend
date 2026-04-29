@@ -8,15 +8,30 @@
 
 -- ── 0. Drop existing tables (reverse FK order) ────────────────────
 
-DROP TABLE IF EXISTS risk_events        CASCADE;
-DROP TABLE IF EXISTS conversation_turns CASCADE;
-DROP TABLE IF EXISTS medication_logs    CASCADE;
-DROP TABLE IF EXISTS sensor_readings    CASCADE;
-DROP TABLE IF EXISTS family_members     CASCADE;
-DROP TABLE IF EXISTS conversation_logs  CASCADE;
-DROP TABLE IF EXISTS patients           CASCADE;
+DROP TABLE IF EXISTS risk_events             CASCADE;
+DROP TABLE IF EXISTS conversation_turns      CASCADE;
+DROP TABLE IF EXISTS medication_logs         CASCADE;
+DROP TABLE IF EXISTS medication_schedules    CASCADE;
+DROP TABLE IF EXISTS sensor_readings         CASCADE;
+DROP TABLE IF EXISTS family_members          CASCADE;
+DROP TABLE IF EXISTS conversation_logs       CASCADE;
+DROP TABLE IF EXISTS patients                CASCADE;
+DROP TABLE IF EXISTS doctors                 CASCADE;
 
 -- ── 1. Tables ─────────────────────────────────────────────────────
+
+CREATE TABLE doctors (
+    id                  TEXT             PRIMARY KEY,
+    name                VARCHAR(255)     NOT NULL,
+    email               VARCHAR(255)     NOT NULL UNIQUE,
+    specialty           VARCHAR(120)     NOT NULL,
+    clinic              VARCHAR(255),
+    phone               VARCHAR(32),
+    bio                 TEXT,
+    profile_picture_url TEXT,
+    experience_years    INTEGER          NOT NULL DEFAULT 0,
+    created_at          TIMESTAMPTZ      NOT NULL DEFAULT now()
+);
 
 CREATE TABLE patients (
     id               TEXT             PRIMARY KEY,
@@ -29,6 +44,7 @@ CREATE TABLE patients (
     medications      JSONB            NOT NULL DEFAULT '[]',
     comorbidities    JSONB            NOT NULL DEFAULT '[]',
     doctor_email     VARCHAR(255)     NOT NULL,
+    doctor_id        TEXT             REFERENCES doctors(id) ON DELETE SET NULL,
     created_at       TIMESTAMPTZ      NOT NULL DEFAULT now()
 );
 
@@ -61,6 +77,16 @@ CREATE TABLE medication_logs (
     taken        BOOLEAN     NOT NULL DEFAULT FALSE,
     meal_context VARCHAR(32) NOT NULL,
     confirmed_at TIMESTAMPTZ
+);
+
+CREATE TABLE medication_schedules (
+    id             TEXT         PRIMARY KEY,
+    patient_id     TEXT         NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+    medication     VARCHAR(120) NOT NULL,
+    scheduled_time VARCHAR(5)   NOT NULL CHECK (scheduled_time ~ '^[0-2][0-9]:[0-5][0-9]$'),
+    frequency      VARCHAR(16)  NOT NULL CHECK (frequency IN ('daily', 'twice_daily')),
+    meal_context   VARCHAR(8)   NOT NULL CHECK (meal_context IN ('before', 'after')),
+    active         BOOLEAN      NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE sensor_readings (
@@ -123,17 +149,25 @@ CREATE INDEX ix_risk_events_patient_id
 CREATE INDEX ix_risk_events_conversation_log_id
     ON risk_events (conversation_log_id);
 
+CREATE INDEX ix_medication_schedules_patient_id
+    ON medication_schedules (patient_id);
+
+CREATE INDEX ix_medication_schedules_active
+    ON medication_schedules (active, scheduled_time);
+
 -- ── 3. Row Level Security ─────────────────────────────────────────
 -- Authenticated Flutter clients (anon/public key) may SELECT.
 -- All writes go through the FastAPI backend (service-role key, bypasses RLS).
 
-ALTER TABLE patients           ENABLE ROW LEVEL SECURITY;
-ALTER TABLE conversation_logs  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE family_members     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE medication_logs    ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sensor_readings    ENABLE ROW LEVEL SECURITY;
-ALTER TABLE conversation_turns ENABLE ROW LEVEL SECURITY;
-ALTER TABLE risk_events        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE doctors                ENABLE ROW LEVEL SECURITY;
+ALTER TABLE patients               ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversation_logs      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE family_members         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE medication_logs        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE medication_schedules   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sensor_readings        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversation_turns     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE risk_events            ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "authenticated_read" ON patients
     FOR SELECT USING (auth.role() = 'authenticated');
@@ -153,7 +187,13 @@ CREATE POLICY "authenticated_read" ON sensor_readings
 CREATE POLICY "authenticated_read" ON conversation_turns
     FOR SELECT USING (auth.role() = 'authenticated');
 
+CREATE POLICY "authenticated_read" ON doctors
+    FOR SELECT USING (auth.role() = 'authenticated');
+
 CREATE POLICY "authenticated_read" ON risk_events
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "authenticated_read" ON medication_schedules
     FOR SELECT USING (auth.role() = 'authenticated');
 
 -- No INSERT / UPDATE / DELETE policies.

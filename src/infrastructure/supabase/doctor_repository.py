@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from abstraction.repositories.doctor_repository import DoctorRepository
+from abstraction.repositories.doctor_repository import DoctorRepositoryPort
 from infrastructure.supabase.client import get_supabase_client
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 TABLE = "doctors"
 
 
-class SupabaseDoctorRepository(DoctorRepository):
+class SupabaseDoctorRepository(DoctorRepositoryPort):
 
     async def create(self, data: Dict[str, Any]) -> Dict[str, Any]:
         row = {

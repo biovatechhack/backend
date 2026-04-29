@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 
-class DoctorRepository(ABC):
+class DoctorRepositoryPort(ABC):
 
     @abstractmethod
     async def create(self, data: dict) -> dict:

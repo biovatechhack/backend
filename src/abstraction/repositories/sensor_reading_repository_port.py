@@ -8,6 +8,10 @@ from domain.entities.sensor_reading import SensorReading
 
 class SensorReadingRepositoryPort(ABC):
     @abstractmethod
+    async def save(self, reading: SensorReading) -> None:
+        """Persist a new sensor reading."""
+
+    @abstractmethod
     async def get_by_patient_since(
         self, patient_id: str, since: datetime
     ) -> list[SensorReading]:
