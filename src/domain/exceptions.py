@@ -7,3 +7,7 @@ class GeminiParseError(Exception):
 
 class GeminiUnavailableError(Exception):
     """Raised when all retry attempts to the Gemini API are exhausted."""
+
+
+class PatientNotFoundError(Exception):
+    """Raised when a patient_id does not match any record."""

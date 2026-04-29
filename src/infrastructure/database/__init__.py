@@ -1,13 +1,14 @@
-from src.infrastructure.database.base import Base
-from src.infrastructure.database.models import (
+from infrastructure.database.base import Base
+from infrastructure.database.models import (
     ConversationLogModel,
     ConversationTurnModel,
     FamilyMemberModel,
     MedicationLogModel,
+    MedicationScheduleModel,
     PatientModel,
     RiskEventModel,
 )
-from src.infrastructure.database.session import SessionFactory, engine
+from infrastructure.database.session import SessionFactory, engine
 
 __all__ = [
     "Base",
@@ -17,6 +18,7 @@ __all__ = [
     "FamilyMemberModel",
     "RiskEventModel",
     "MedicationLogModel",
+    "MedicationScheduleModel",
     "SessionFactory",
     "engine",
 ]

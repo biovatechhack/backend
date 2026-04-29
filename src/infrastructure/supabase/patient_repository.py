@@ -1,3 +1,9 @@
+"""Concrete implementation of PatientRepository using the Supabase async client.
+
+All writes use the service-role key (bypasses RLS).
+All reads return plain dicts — mapping to domain entities happens in the
+use case layer if needed.
+"""
 from __future__ import annotations
 
 import logging
