@@ -1,0 +1,21 @@
+{
+  "رأسي يدوخ": {"fr": "j'ai la tête qui tourne", "clinical": "dizziness"},
+  "عطشان بزاف": {"fr": "très soif", "clinical": "excessive_thirst"},
+  "ما كليتش": {"fr": "je n'ai pas mangé", "clinical": "missed_meal"},
+  "قلبي يضرب": {"fr": "mon cœur bat vite", "clinical": "palpitations"},
+  "رجليا ترتعش": {"fr": "mes jambes tremblent", "clinical": "tremors"},
+  "حاسس بالدوار": {"fr": "je me sens faible", "clinical": "fatigue"},
+  "كحح": {"fr": "je tousse", "clinical": "cough"},
+  "عيني ما تشوفش": {"fr": "je vois flou", "clinical": "blurred_vision"},
+  "ألم في الصدر": {"fr": "douleur à la poitrine", "clinical": "chest_pain"},
+  "ضيق في التنفس": {"fr": "essoufflement", "clinical": "shortness_of_breath"},
+  "تعب شديد": {"fr": "fatigue extrême", "clinical": "extreme_fatigue"},
+  "غثيان": {"fr": "nausée", "clinical": "nausea"},
+  "صداع": {"fr": "mal de tête", "clinical": "headache"},
+  "حمى": {"fr": "fièvre", "clinical": "fever"},
+  "برودة في الأطراف": {"fr": "froid aux extrémités", "clinical": "cold_extremities"},
+  "خفقان": {"fr": "palpitations", "clinical": "palpitations"},
+  "ألم في الكتف": {"fr": "douleur à l'épaule", "clinical": "shoulder_pain"},
+  "وخز في الأصابع": {"fr": "fourmillements dans les doigts", "clinical": "tingling_fingers"},
+  "ألم في الرقبة": {"fr": "douleur au cou", "clinical": "neck_pain"}
+}

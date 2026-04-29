@@ -9,7 +9,7 @@ from domain.entities.risk_event import RiskEvent
 
 @dataclass(slots=True)
 class ConversationLog:
-    id: str
+    id: str 
     patient_id: str
     final_risk: str
     duration_seconds: int
