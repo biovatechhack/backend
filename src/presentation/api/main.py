@@ -1,6 +1,8 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+
 from infrastructure.config.settings import settings
-from presentation.api.routers.health_route import health_router
 from infrastructure.middleware.pii import PiiMiddleware
 from presentation.api.routers.conversation_router import router as conversation_router
 from presentation.api.routers.patient_router import router as patient_router

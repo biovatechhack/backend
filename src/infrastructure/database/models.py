@@ -38,6 +38,10 @@ class PatientModel(Base):
         back_populates="patient",
         cascade="all, delete-orphan",
     )
+    medication_schedules: Mapped[list[MedicationScheduleModel]] = sa_relationship(
+        back_populates="patient",
+        cascade="all, delete-orphan",
+    )
     conversation_logs: Mapped[list[ConversationLogModel]] = sa_relationship(
         back_populates="patient",
         cascade="all, delete-orphan",
@@ -150,3 +154,25 @@ class MedicationLogModel(Base):
     confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     patient: Mapped[PatientModel] = sa_relationship(back_populates="medication_logs")
+
+
+class MedicationScheduleModel(Base):
+    """Recurring medication schedule for a patient.
+
+    scheduled_time is stored as "HH:MM" (24-hour). The scheduler reads active
+    rows daily and fires reminders at the matching wall-clock time.
+    """
+
+    __tablename__ = "medication_schedules"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    patient_id: Mapped[str] = mapped_column(
+        ForeignKey("patients.id", ondelete="CASCADE"), index=True
+    )
+    medication: Mapped[str] = mapped_column(String(120))
+    scheduled_time: Mapped[str] = mapped_column(String(5))   # "HH:MM"
+    frequency: Mapped[str] = mapped_column(String(16))       # "daily" | "twice_daily"
+    meal_context: Mapped[str] = mapped_column(String(8))     # "before" | "after"
+    active: Mapped[bool] = mapped_column(Boolean(), default=True)
+
+    patient: Mapped[PatientModel] = sa_relationship(back_populates="medication_schedules")

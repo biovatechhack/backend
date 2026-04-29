@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision = "20260428_0002"
 down_revision = "20260427_0001"
@@ -12,11 +12,12 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        "patients",
-        sa.Column("gender", sa.String(length=1), nullable=False, server_default="M"),
-    )
-    op.create_check_constraint("ck_patients_gender", "patients", "gender IN ('M', 'F')")
+    # SQLite doesn't support ADD CONSTRAINT via ALTER TABLE; use batch mode.
+    with op.batch_alter_table("patients") as batch_op:
+        batch_op.add_column(
+            sa.Column("gender", sa.String(length=1), nullable=False, server_default="M")
+        )
+        batch_op.create_check_constraint("ck_patients_gender", "gender IN ('M', 'F')")
 
     op.create_table(
         "sensor_readings",
@@ -42,18 +43,19 @@ def upgrade() -> None:
         unique=False,
     )
 
-    # Tighten risk_level to new 3-state vocabulary
-    op.create_check_constraint(
-        "ck_risk_events_risk_level",
-        "risk_events",
-        "risk_level IN ('low', 'moderate', 'high')",
-    )
+    with op.batch_alter_table("risk_events") as batch_op:
+        batch_op.create_check_constraint(
+            "ck_risk_events_risk_level",
+            "risk_level IN ('low', 'moderate', 'high')",
+        )
 
 
 def downgrade() -> None:
-    op.drop_constraint("ck_risk_events_risk_level", "risk_events", type_="check")
+    with op.batch_alter_table("risk_events") as batch_op:
+        batch_op.drop_constraint("ck_risk_events_risk_level", type_="check")
     op.drop_index("ix_sensor_readings_recorded_at", table_name="sensor_readings")
     op.drop_index("ix_sensor_readings_patient_id", table_name="sensor_readings")
     op.drop_table("sensor_readings")
-    op.drop_constraint("ck_patients_gender", "patients", type_="check")
-    op.drop_column("patients", "gender")
+    with op.batch_alter_table("patients") as batch_op:
+        batch_op.drop_constraint("ck_patients_gender", type_="check")
+        batch_op.drop_column("gender")
